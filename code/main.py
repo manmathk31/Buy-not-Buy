@@ -26,29 +26,30 @@ from models import (
     OutputRecord,
     RecommendedPaymentMethod,
     Request,
+    FinancialEvent,
 )
 from loaders import DatasetStore, RequestContext, load_dataset
 from validator import REQUIRED_COLUMNS, validate_output_file
 from forecast import ForecastEngine
+from extraction import ExtractionLayer, apply_extractions_to_events
 
 
-def predict_affordability(ctx: RequestContext, engine: ForecastEngine) -> OutputRecord:
+def predict_affordability(
+    ctx: RequestContext,
+    engine: ForecastEngine,
+    user_events: Optional[List[FinancialEvent]] = None,
+) -> OutputRecord:
     """Predict affordability and recommendation for a single financial request.
 
     Reconstructs 90-day cash flow forecast, calculates amount_safe_to_pay,
     and determines earliest_date_for_full_payment using ForecastEngine.
-
-    TODO (Upcoming turn):
-      1. Multimodal image/message evidence extraction (missing amounts, salary changes).
-      2. Payment-method eligibility check against user profile preferences and seller options.
-      3. Spending change optimization (stop / reduce_to up to 3 permitted flexible categories).
-      4. Safe plan ranking algorithm and decision_explanation generation.
     """
     req = ctx.request
     prof = ctx.profile
+    events = user_events if user_events is not None else ctx.user_events
 
     # Run 90-day cash flow simulation
-    forecast_res = engine.run_forecast(req, prof, ctx.user_events)
+    forecast_res = engine.run_forecast(req, prof, events)
     amount_safe = forecast_res.amount_safe_to_pay
     earliest_date = forecast_res.earliest_date_for_full_payment
 
@@ -131,12 +132,26 @@ def run_pipeline(
     print(f"  - {len(store.messages)} messages")
     print(f"  - {len(store.images)} image links")
 
+    # 1. Scoped extraction layer
+    print("\nRunning scoped extraction layer on images and messages...")
+    extractor = ExtractionLayer()
+    image_results = {img.image_id: extractor.extract_image_amount(img, dataset_path) for img in store.images}
+    message_amendments = [extractor.parse_message(m) for m in store.messages]
+    corrected_events = apply_extractions_to_events(store.events, image_results, message_amendments)
+    print(f"Extracted verified amounts for {len(image_results)} images, parsed {len(message_amendments)} messages.")
+
+    # Group corrected events by user
+    events_by_user: dict[str, list[FinancialEvent]] = {}
+    for e in corrected_events:
+        events_by_user.setdefault(e.user_id, []).append(e)
+
     engine = ForecastEngine(store.currency_converter)
     print("\nProcessing requests through 90-day forecast engine...")
     output_records: List[OutputRecord] = []
     for req in store.requests:
         ctx = store.get_context_for_request(req.request_id)
-        record = predict_affordability(ctx, engine)
+        u_events = events_by_user.get(req.user_id, ctx.user_events)
+        record = predict_affordability(ctx, engine, u_events)
         output_records.append(record)
 
     print(f"Writing {len(output_records)} output records to: {out_path}")

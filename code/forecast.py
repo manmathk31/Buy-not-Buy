@@ -123,58 +123,89 @@ class ForecastEngine:
 
     def detect_recurring_groups(
         self,
-        historical_events: List[FinancialEvent],
+        candidate_events: List[FinancialEvent],
         request_date: date,
     ) -> List[Dict[str, Any]]:
-        """Identify strictly recurring (user_id, category, description) groups.
+        """Identify strictly recurring groups across settled and scheduled events.
         
-        Requires:
-          - >= 2 historical occurrences (event_date <= request_date).
-          - Distinct occurrence dates.
-          - Median interval M > 0.
+        Rules:
+          - >= 2 occurrences.
           - Strict tolerance: all gaps |g_i - M| <= 3 days.
+          - Salary: groups across description variations (prorated -> regular -> scheduled),
+            unless explicitly flagged as final/terminated or variable gig platform payouts.
         """
         groups: Dict[Tuple[str, str, str], List[FinancialEvent]] = {}
-        for e in historical_events:
+        for e in candidate_events:
             if not self.is_included_event(e):
                 continue
-            e_date = self.parse_date(e.event_date)
-            if e_date <= request_date:
-                # Require non-null amount for projection
-                if e.amount is not None:
-                    groups.setdefault((e.user_id, e.category, e.description), []).append(e)
+            if e.amount is None:
+                continue
+
+            cat = e.category.strip().lower()
+            desc_lower = e.description.strip().lower()
+
+            # Terminated employment should not recur
+            if "final" in desc_lower and cat == "salary":
+                continue
+
+            if cat == "salary":
+                # Identify primary base payroll (e.g. monthly regular salary)
+                is_supplemental = any(w in desc_lower for w in ("bonus", "commission", "arrears", "second", "overtime"))
+                if not is_supplemental and any(w in desc_lower for w in ("salary", "payroll", "base")):
+                    # Group by day of month so day-15 payrolls group together across description variations (prorated -> regular -> next scheduled)
+                    dom = self.parse_date(e.event_date).day
+                    desc_key = f"primary_payroll_dom_{dom}"
+                else:
+                    desc_key = e.description.strip()
+            else:
+                desc_key = e.description.strip()
+
+            groups.setdefault((e.user_id, e.category, desc_key), []).append(e)
 
         recurring: List[Dict[str, Any]] = []
 
-        for (uid, cat, desc), ev_list in groups.items():
-            # Sort by event_date
+        for (uid, cat, desc_key), ev_list in groups.items():
             ev_list.sort(key=lambda x: self.parse_date(x.event_date))
-            dates = [self.parse_date(e.event_date) for e in ev_list]
-            unique_dates = sorted(set(dates))
-
-            if len(unique_dates) < 2:
+            dates = sorted(set(self.parse_date(e.event_date) for e in ev_list))
+            if len(dates) < 2:
                 continue
 
-            gaps = [(unique_dates[i] - unique_dates[i-1]).days for i in range(1, len(unique_dates))]
+            gaps = [(dates[i] - dates[i-1]).days for i in range(1, len(dates))]
             med_gap = statistics.median(gaps)
+            if med_gap <= 0:
+                continue
 
-            # Enforce median gap consistency with +- 3 days tolerance
-            if med_gap > 0 and all(abs(g - med_gap) <= 3 for g in gaps):
-                latest_event = ev_list[-1]
-                int_med = round(med_gap)
-                is_monthly = (28 <= int_med <= 31 and len(set(d.day for d in unique_dates)) == 1)
+            # Check if identical day of month with monthly cadence (including possible unpaid leave multiples)
+            days_of_month = [d.day for d in dates]
+            is_same_dom = (len(set(days_of_month)) == 1)
+            is_monthly_leave = is_same_dom and all((g % 30 <= 3 or g % 31 <= 3 or g % 29 <= 3) for g in gaps)
+
+            # Require strict tolerance or monthly leave cadence
+            if all(abs(g - med_gap) <= 3 for g in gaps) or is_monthly_leave:
+                latest_e = ev_list[-1]
+                if is_monthly_leave:
+                    int_med = 30
+                    is_monthly = True
+                else:
+                    int_med = round(med_gap)
+                    is_monthly = (28 <= int_med <= 31 and len(set(d.day for d in dates)) == 1)
+
+                # For 2 occurrences of non-salary, avoid spurious recurrence with large gaps > 32 days
+                if len(dates) == 2 and int_med > 32 and cat != "salary":
+                    continue
+
                 recurring.append({
                     "user_id": uid,
                     "category": cat,
-                    "description": desc,
-                    "direction": latest_event.direction,
-                    "amount": latest_event.amount,
-                    "currency": latest_event.currency,
+                    "description": latest_e.description,
+                    "direction": latest_e.direction,
+                    "amount": latest_e.amount,
+                    "currency": latest_e.currency,
                     "median_interval": int_med,
                     "is_monthly": is_monthly,
-                    "day_of_month": unique_dates[0].day if is_monthly else None,
-                    "last_date": unique_dates[-1],
-                    "occurrences_count": len(unique_dates),
+                    "day_of_month": dates[-1].day if is_monthly else None,
+                    "last_date": dates[-1],
+                    "occurrences_count": len(dates),
                 })
 
         return recurring
@@ -206,6 +237,7 @@ class ForecastEngine:
         # 2. Separate into historical and future included events
         included_future_events: List[FinancialEvent] = []
         historical_events: List[FinancialEvent] = []
+        candidate_recurrence_events: List[FinancialEvent] = []
 
         for e in deduped_events:
             if not self.is_included_event(e):
@@ -216,6 +248,10 @@ class ForecastEngine:
             if e_date <= req_date:
                 historical_events.append(e)
 
+            # Candidate for recurrence: confirmed settled and scheduled events
+            if e.status.lower() in ("settled", "scheduled"):
+                candidate_recurrence_events.append(e)
+
             # Future settlement within forecast window
             # Also include pending debits with settlement_date <= req_date that have not yet settled
             if req_date <= s_date <= horizon_end:
@@ -225,14 +261,14 @@ class ForecastEngine:
                 included_future_events.append(e)
 
         # 3. Recurrence detection
-        recurring_groups = self.detect_recurring_groups(historical_events, req_date)
+        recurring_groups = self.detect_recurring_groups(candidate_recurrence_events, req_date)
 
         # Map of existing explicit future events to avoid double counting:
-        # (category, description, date) -> True
-        existing_explicit_keys: Set[Tuple[str, str, date]] = set()
+        # (category.lower(), date) -> True
+        existing_explicit_keys: Set[Tuple[str, date]] = set()
         for e in included_future_events:
             s_date = self.parse_date(e.settlement_date if e.settlement_date else e.event_date)
-            existing_explicit_keys.add((e.category, e.description, s_date))
+            existing_explicit_keys.add((e.category.lower(), s_date))
 
         # 4. Project future recurring events
         projected_cash_flows: List[CashFlowItem] = []
@@ -243,7 +279,7 @@ class ForecastEngine:
                 next_d = self._add_months(last_d, m, rg.get("day_of_month"))
                 while next_d <= horizon_end:
                     if next_d > req_date:
-                        if (rg["category"], rg["description"], next_d) not in existing_explicit_keys:
+                        if (rg["category"].lower(), next_d) not in existing_explicit_keys:
                             projected_cash_flows.append(
                                 CashFlowItem(
                                     date=next_d,
@@ -262,7 +298,7 @@ class ForecastEngine:
                 next_d = last_d + timedelta(days=interval)
                 while next_d <= horizon_end:
                     if next_d > req_date:
-                        if (rg["category"], rg["description"], next_d) not in existing_explicit_keys:
+                        if (rg["category"].lower(), next_d) not in existing_explicit_keys:
                             projected_cash_flows.append(
                                 CashFlowItem(
                                     date=next_d,
