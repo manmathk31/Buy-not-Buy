@@ -1,251 +1,251 @@
 request_id,amount_safe_to_pay,affordability_status,recommended_payment_method,payment_plan,earliest_date_for_full_payment,spending_changes_needed,decision_explanation
-request_26,,,,,,,
-request_27,,,,,,,
-request_28,,,,,,,
-request_29,,,,,,,
-request_30,,,,,,,
-request_31,,,,,,,
-request_32,,,,,,,
-request_33,,,,,,,
-request_34,,,,,,,
-request_35,,,,,,,
-request_36,,,,,,,
-request_37,,,,,,,
-request_38,,,,,,,
-request_39,,,,,,,
-request_40,,,,,,,
-request_41,,,,,,,
-request_42,,,,,,,
-request_43,,,,,,,
-request_44,,,,,,,
-request_45,,,,,,,
-request_46,,,,,,,
-request_47,,,,,,,
-request_48,,,,,,,
-request_49,,,,,,,
-request_50,,,,,,,
-request_51,,,,,,,
-request_52,,,,,,,
-request_53,,,,,,,
-request_54,,,,,,,
-request_55,,,,,,,
-request_56,,,,,,,
-request_57,,,,,,,
-request_58,,,,,,,
-request_59,,,,,,,
-request_60,,,,,,,
-request_61,,,,,,,
-request_62,,,,,,,
-request_63,,,,,,,
-request_64,,,,,,,
-request_65,,,,,,,
-request_66,,,,,,,
-request_67,,,,,,,
-request_68,,,,,,,
-request_69,,,,,,,
-request_70,,,,,,,
-request_71,,,,,,,
-request_72,,,,,,,
-request_73,,,,,,,
-request_74,,,,,,,
-request_75,,,,,,,
-request_76,,,,,,,
-request_77,,,,,,,
-request_78,,,,,,,
-request_79,,,,,,,
-request_80,,,,,,,
-request_81,,,,,,,
-request_82,,,,,,,
-request_83,,,,,,,
-request_84,,,,,,,
-request_85,,,,,,,
-request_86,,,,,,,
-request_87,,,,,,,
-request_88,,,,,,,
-request_89,,,,,,,
-request_90,,,,,,,
-request_91,,,,,,,
-request_92,,,,,,,
-request_93,,,,,,,
-request_94,,,,,,,
-request_95,,,,,,,
-request_96,,,,,,,
-request_97,,,,,,,
-request_98,,,,,,,
-request_99,,,,,,,
-request_100,,,,,,,
-request_101,,,,,,,
-request_102,,,,,,,
-request_103,,,,,,,
-request_104,,,,,,,
-request_105,,,,,,,
-request_106,,,,,,,
-request_107,,,,,,,
-request_108,,,,,,,
-request_109,,,,,,,
-request_110,,,,,,,
-request_111,,,,,,,
-request_112,,,,,,,
-request_113,,,,,,,
-request_114,,,,,,,
-request_115,,,,,,,
-request_116,,,,,,,
-request_117,,,,,,,
-request_118,,,,,,,
-request_119,,,,,,,
-request_120,,,,,,,
-request_121,,,,,,,
-request_122,,,,,,,
-request_123,,,,,,,
-request_124,,,,,,,
-request_125,,,,,,,
-request_126,,,,,,,
-request_127,,,,,,,
-request_128,,,,,,,
-request_129,,,,,,,
-request_130,,,,,,,
-request_131,,,,,,,
-request_132,,,,,,,
-request_133,,,,,,,
-request_134,,,,,,,
-request_135,,,,,,,
-request_136,,,,,,,
-request_137,,,,,,,
-request_138,,,,,,,
-request_139,,,,,,,
-request_140,,,,,,,
-request_141,,,,,,,
-request_142,,,,,,,
-request_143,,,,,,,
-request_144,,,,,,,
-request_145,,,,,,,
-request_146,,,,,,,
-request_147,,,,,,,
-request_148,,,,,,,
-request_149,,,,,,,
-request_150,,,,,,,
-request_151,,,,,,,
-request_152,,,,,,,
-request_153,,,,,,,
-request_154,,,,,,,
-request_155,,,,,,,
-request_156,,,,,,,
-request_157,,,,,,,
-request_158,,,,,,,
-request_159,,,,,,,
-request_160,,,,,,,
-request_161,,,,,,,
-request_162,,,,,,,
-request_163,,,,,,,
-request_164,,,,,,,
-request_165,,,,,,,
-request_166,,,,,,,
-request_167,,,,,,,
-request_168,,,,,,,
-request_169,,,,,,,
-request_170,,,,,,,
-request_171,,,,,,,
-request_172,,,,,,,
-request_173,,,,,,,
-request_174,,,,,,,
-request_175,,,,,,,
-request_176,,,,,,,
-request_177,,,,,,,
-request_178,,,,,,,
-request_179,,,,,,,
-request_180,,,,,,,
-request_181,,,,,,,
-request_182,,,,,,,
-request_183,,,,,,,
-request_184,,,,,,,
-request_185,,,,,,,
-request_186,,,,,,,
-request_187,,,,,,,
-request_188,,,,,,,
-request_189,,,,,,,
-request_190,,,,,,,
-request_191,,,,,,,
-request_192,,,,,,,
-request_193,,,,,,,
-request_194,,,,,,,
-request_195,,,,,,,
-request_196,,,,,,,
-request_197,,,,,,,
-request_198,,,,,,,
-request_199,,,,,,,
-request_200,,,,,,,
-request_201,,,,,,,
-request_202,,,,,,,
-request_203,,,,,,,
-request_204,,,,,,,
-request_205,,,,,,,
-request_206,,,,,,,
-request_207,,,,,,,
-request_208,,,,,,,
-request_209,,,,,,,
-request_210,,,,,,,
-request_211,,,,,,,
-request_212,,,,,,,
-request_213,,,,,,,
-request_214,,,,,,,
-request_215,,,,,,,
-request_216,,,,,,,
-request_217,,,,,,,
-request_218,,,,,,,
-request_219,,,,,,,
-request_220,,,,,,,
-request_221,,,,,,,
-request_222,,,,,,,
-request_223,,,,,,,
-request_224,,,,,,,
-request_225,,,,,,,
-request_226,,,,,,,
-request_227,,,,,,,
-request_228,,,,,,,
-request_229,,,,,,,
-request_230,,,,,,,
-request_231,,,,,,,
-request_232,,,,,,,
-request_233,,,,,,,
-request_234,,,,,,,
-request_235,,,,,,,
-request_236,,,,,,,
-request_237,,,,,,,
-request_238,,,,,,,
-request_239,,,,,,,
-request_240,,,,,,,
-request_241,,,,,,,
-request_242,,,,,,,
-request_243,,,,,,,
-request_244,,,,,,,
-request_245,,,,,,,
-request_246,,,,,,,
-request_247,,,,,,,
-request_248,,,,,,,
-request_249,,,,,,,
-request_250,,,,,,,
-request_251,,,,,,,
-request_252,,,,,,,
-request_253,,,,,,,
-request_254,,,,,,,
-request_255,,,,,,,
-request_256,,,,,,,
-request_257,,,,,,,
-request_258,,,,,,,
-request_259,,,,,,,
-request_260,,,,,,,
-request_261,,,,,,,
-request_262,,,,,,,
-request_263,,,,,,,
-request_264,,,,,,,
-request_265,,,,,,,
-request_266,,,,,,,
-request_267,,,,,,,
-request_268,,,,,,,
-request_269,,,,,,,
-request_270,,,,,,,
-request_271,,,,,,,
-request_272,,,,,,,
-request_273,,,,,,,
-request_274,,,,,,,
-request_275,,,,,,,
+request_26,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 15656000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_27,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 6670.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_28,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1302.40 EUR evaluated. Decision logic pending algorithm implementation.
+request_29,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 51524.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_30,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 775.20 USD evaluated. Decision logic pending algorithm implementation.
+request_31,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 18164000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_32,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 40018.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_33,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 118000.00 INR evaluated. Decision logic pending algorithm implementation.
+request_34,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 129400.00 INR evaluated. Decision logic pending algorithm implementation.
+request_35,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 212000.00 INR evaluated. Decision logic pending algorithm implementation.
+request_36,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 3954.00 USD evaluated. Decision logic pending algorithm implementation.
+request_37,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 14649000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_38,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 971.30 EUR evaluated. Decision logic pending algorithm implementation.
+request_39,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 208600.00 INR evaluated. Decision logic pending algorithm implementation.
+request_40,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1290.30 EUR evaluated. Decision logic pending algorithm implementation.
+request_41,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 38760000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_42,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 52100.00 INR evaluated. Decision logic pending algorithm implementation.
+request_43,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 43339000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_44,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 95800.00 INR evaluated. Decision logic pending algorithm implementation.
+request_45,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 21983000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_46,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 49450.00 INR evaluated. Decision logic pending algorithm implementation.
+request_47,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 38114000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_48,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 45700.00 INR evaluated. Decision logic pending algorithm implementation.
+request_49,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 34333000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_50,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 43900.00 INR evaluated. Decision logic pending algorithm implementation.
+request_51,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 2191000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_52,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 28870.00 INR evaluated. Decision logic pending algorithm implementation.
+request_53,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1699.20 USD evaluated. Decision logic pending algorithm implementation.
+request_54,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 121528.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_55,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 218600.00 INR evaluated. Decision logic pending algorithm implementation.
+request_56,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 881.56 USD evaluated. Decision logic pending algorithm implementation.
+request_57,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 61446.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_58,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 16226000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_59,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 140600.00 INR evaluated. Decision logic pending algorithm implementation.
+request_60,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 199.89 USD evaluated. Decision logic pending algorithm implementation.
+request_61,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 29062.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_62,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 404.23 USD evaluated. Decision logic pending algorithm implementation.
+request_63,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 343900.00 INR evaluated. Decision logic pending algorithm implementation.
+request_64,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 63700.00 INR evaluated. Decision logic pending algorithm implementation.
+request_65,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 54340.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_66,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 22200.00 INR evaluated. Decision logic pending algorithm implementation.
+request_67,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 2094.00 USD evaluated. Decision logic pending algorithm implementation.
+request_68,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 2091.60 USD evaluated. Decision logic pending algorithm implementation.
+request_69,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 529.10 EUR evaluated. Decision logic pending algorithm implementation.
+request_70,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 243900.00 INR evaluated. Decision logic pending algorithm implementation.
+request_71,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 21451000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_72,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 11330.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_73,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 71400.00 INR evaluated. Decision logic pending algorithm implementation.
+request_74,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 5010.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_75,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 28270.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_76,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 4455.60 USD evaluated. Decision logic pending algorithm implementation.
+request_77,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 60700.00 INR evaluated. Decision logic pending algorithm implementation.
+request_78,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 50200.00 INR evaluated. Decision logic pending algorithm implementation.
+request_79,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 2151.60 EUR evaluated. Decision logic pending algorithm implementation.
+request_80,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 217500.00 INR evaluated. Decision logic pending algorithm implementation.
+request_81,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 2076.00 USD evaluated. Decision logic pending algorithm implementation.
+request_82,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1405.20 USD evaluated. Decision logic pending algorithm implementation.
+request_83,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 156200.00 INR evaluated. Decision logic pending algorithm implementation.
+request_84,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 95400.00 INR evaluated. Decision logic pending algorithm implementation.
+request_85,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 19304000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_86,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 46300.00 INR evaluated. Decision logic pending algorithm implementation.
+request_87,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 487900.00 INR evaluated. Decision logic pending algorithm implementation.
+request_88,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 26092.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_89,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 13756000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_90,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 2560.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_91,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1927.20 EUR evaluated. Decision logic pending algorithm implementation.
+request_92,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 34034.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_93,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1729.20 USD evaluated. Decision logic pending algorithm implementation.
+request_94,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 572.00 EUR evaluated. Decision logic pending algorithm implementation.
+request_95,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 553000.00 INR evaluated. Decision logic pending algorithm implementation.
+request_96,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 90200.00 INR evaluated. Decision logic pending algorithm implementation.
+request_97,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 23496.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_98,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 27148.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_99,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 18062.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_100,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 37114.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_101,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 143500.00 INR evaluated. Decision logic pending algorithm implementation.
+request_102,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1716.00 EUR evaluated. Decision logic pending algorithm implementation.
+request_103,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 368300.00 INR evaluated. Decision logic pending algorithm implementation.
+request_104,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 17204.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_105,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 53500.00 INR evaluated. Decision logic pending algorithm implementation.
+request_106,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 2207.70 EUR evaluated. Decision logic pending algorithm implementation.
+request_107,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 2534.40 EUR evaluated. Decision logic pending algorithm implementation.
+request_108,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 55308.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_109,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1863.40 EUR evaluated. Decision logic pending algorithm implementation.
+request_110,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 22352.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_111,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 16625000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_112,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 271.70 EUR evaluated. Decision logic pending algorithm implementation.
+request_113,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 36500.00 INR evaluated. Decision logic pending algorithm implementation.
+request_114,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 65300.00 INR evaluated. Decision logic pending algorithm implementation.
+request_115,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 80500.00 INR evaluated. Decision logic pending algorithm implementation.
+request_116,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 241200.00 INR evaluated. Decision logic pending algorithm implementation.
+request_117,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 880.00 EUR evaluated. Decision logic pending algorithm implementation.
+request_118,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 738.10 EUR evaluated. Decision logic pending algorithm implementation.
+request_119,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 203500.00 INR evaluated. Decision logic pending algorithm implementation.
+request_120,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 7714000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_121,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 633.60 USD evaluated. Decision logic pending algorithm implementation.
+request_122,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 20558000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_123,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 4076000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_124,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 3104.20 EUR evaluated. Decision logic pending algorithm implementation.
+request_125,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 6468.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_126,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 159600.00 INR evaluated. Decision logic pending algorithm implementation.
+request_127,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 23980.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_128,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 25168.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_129,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 2668.80 USD evaluated. Decision logic pending algorithm implementation.
+request_130,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1978.80 USD evaluated. Decision logic pending algorithm implementation.
+request_131,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1855.20 USD evaluated. Decision logic pending algorithm implementation.
+request_132,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 379.86 USD evaluated. Decision logic pending algorithm implementation.
+request_133,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 15770000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_134,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 21831000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_135,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 304.80 USD evaluated. Decision logic pending algorithm implementation.
+request_136,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 560.40 USD evaluated. Decision logic pending algorithm implementation.
+request_137,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 80100.00 INR evaluated. Decision logic pending algorithm implementation.
+request_138,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1256.94 EUR evaluated. Decision logic pending algorithm implementation.
+request_139,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 2316.00 USD evaluated. Decision logic pending algorithm implementation.
+request_140,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 62832.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_141,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 171600.00 INR evaluated. Decision logic pending algorithm implementation.
+request_142,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1263.60 USD evaluated. Decision logic pending algorithm implementation.
+request_143,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 12584.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_144,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 233.34 USD evaluated. Decision logic pending algorithm implementation.
+request_145,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 217400.00 INR evaluated. Decision logic pending algorithm implementation.
+request_146,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 449400.00 INR evaluated. Decision logic pending algorithm implementation.
+request_147,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1129.70 EUR evaluated. Decision logic pending algorithm implementation.
+request_148,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 22242.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_149,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 36652.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_150,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 496.10 EUR evaluated. Decision logic pending algorithm implementation.
+request_151,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 26999000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_152,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 13882.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_153,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 2830.80 USD evaluated. Decision logic pending algorithm implementation.
+request_154,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1625.80 EUR evaluated. Decision logic pending algorithm implementation.
+request_155,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 112500.00 INR evaluated. Decision logic pending algorithm implementation.
+request_156,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 43076.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_157,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 23503000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_158,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 242600.00 INR evaluated. Decision logic pending algorithm implementation.
+request_159,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 13398.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_160,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1246.30 EUR evaluated. Decision logic pending algorithm implementation.
+request_161,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 21204000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_162,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 83923000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_163,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 19304000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_164,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 27018000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_165,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 80600.00 INR evaluated. Decision logic pending algorithm implementation.
+request_166,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 2907.60 USD evaluated. Decision logic pending algorithm implementation.
+request_167,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 43802.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_168,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 49380.00 INR evaluated. Decision logic pending algorithm implementation.
+request_169,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 41976.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_170,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 36936000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_171,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1878.80 EUR evaluated. Decision logic pending algorithm implementation.
+request_172,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 10200.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_173,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 113000.00 INR evaluated. Decision logic pending algorithm implementation.
+request_174,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1146.20 EUR evaluated. Decision logic pending algorithm implementation.
+request_175,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 2346.30 EUR evaluated. Decision logic pending algorithm implementation.
+request_176,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1239.70 EUR evaluated. Decision logic pending algorithm implementation.
+request_177,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1017.60 USD evaluated. Decision logic pending algorithm implementation.
+request_178,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 2938.10 EUR evaluated. Decision logic pending algorithm implementation.
+request_179,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 41648000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_180,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 66500.00 INR evaluated. Decision logic pending algorithm implementation.
+request_181,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 5059.20 USD evaluated. Decision logic pending algorithm implementation.
+request_182,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 65714.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_183,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 26866000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_184,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 251900.00 INR evaluated. Decision logic pending algorithm implementation.
+request_185,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1257.30 EUR evaluated. Decision logic pending algorithm implementation.
+request_186,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 26554.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_187,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 187500.00 INR evaluated. Decision logic pending algorithm implementation.
+request_188,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 2464.00 EUR evaluated. Decision logic pending algorithm implementation.
+request_189,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 488.40 EUR evaluated. Decision logic pending algorithm implementation.
+request_190,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 2557.50 EUR evaluated. Decision logic pending algorithm implementation.
+request_191,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 664.40 EUR evaluated. Decision logic pending algorithm implementation.
+request_192,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 2046.00 USD evaluated. Decision logic pending algorithm implementation.
+request_193,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1212.20 EUR evaluated. Decision logic pending algorithm implementation.
+request_194,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 132800.00 INR evaluated. Decision logic pending algorithm implementation.
+request_195,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1170.40 EUR evaluated. Decision logic pending algorithm implementation.
+request_196,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 762.30 EUR evaluated. Decision logic pending algorithm implementation.
+request_197,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 50939000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_198,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 185800.00 INR evaluated. Decision logic pending algorithm implementation.
+request_199,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 23674000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_200,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 21717000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_201,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 23997000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_202,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 123900.00 INR evaluated. Decision logic pending algorithm implementation.
+request_203,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1442.10 EUR evaluated. Decision logic pending algorithm implementation.
+request_204,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 588.74 EUR evaluated. Decision logic pending algorithm implementation.
+request_205,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 10621000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_206,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1404.70 EUR evaluated. Decision logic pending algorithm implementation.
+request_207,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 11830.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_208,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 4413000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_209,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 56914.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_210,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1360.02 USD evaluated. Decision logic pending algorithm implementation.
+request_211,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1788.60 EUR evaluated. Decision logic pending algorithm implementation.
+request_212,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 71934000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_213,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 3362.40 USD evaluated. Decision logic pending algorithm implementation.
+request_214,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 69750.00 INR evaluated. Decision logic pending algorithm implementation.
+request_215,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 29986.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_216,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 3332.40 USD evaluated. Decision logic pending algorithm implementation.
+request_217,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 37180.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_218,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 61142000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_219,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1673.10 EUR evaluated. Decision logic pending algorithm implementation.
+request_220,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 3118.50 EUR evaluated. Decision logic pending algorithm implementation.
+request_221,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 109800.00 INR evaluated. Decision logic pending algorithm implementation.
+request_222,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 34078.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_223,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 898.70 EUR evaluated. Decision logic pending algorithm implementation.
+request_224,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 10327000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_225,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 22059000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_226,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 157000.00 INR evaluated. Decision logic pending algorithm implementation.
+request_227,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 259700.00 INR evaluated. Decision logic pending algorithm implementation.
+request_228,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 63327000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_229,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1526.80 EUR evaluated. Decision logic pending algorithm implementation.
+request_230,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 3537.60 EUR evaluated. Decision logic pending algorithm implementation.
+request_231,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 35706.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_232,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1970.10 EUR evaluated. Decision logic pending algorithm implementation.
+request_233,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 6241000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_234,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1213.30 EUR evaluated. Decision logic pending algorithm implementation.
+request_235,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 967.20 USD evaluated. Decision logic pending algorithm implementation.
+request_236,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 52383000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_237,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 23826000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_238,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 663.60 USD evaluated. Decision logic pending algorithm implementation.
+request_239,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 642.00 USD evaluated. Decision logic pending algorithm implementation.
+request_240,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 101200.00 INR evaluated. Decision logic pending algorithm implementation.
+request_241,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 21052000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_242,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1966.80 EUR evaluated. Decision logic pending algorithm implementation.
+request_243,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 17468.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_244,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 49918.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_245,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 128500.00 INR evaluated. Decision logic pending algorithm implementation.
+request_246,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 64086.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_247,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1059.30 EUR evaluated. Decision logic pending algorithm implementation.
+request_248,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1965.60 USD evaluated. Decision logic pending algorithm implementation.
+request_249,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 643.20 USD evaluated. Decision logic pending algorithm implementation.
+request_250,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 124278.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_251,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1513.60 EUR evaluated. Decision logic pending algorithm implementation.
+request_252,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 28082000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_253,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 2840.20 EUR evaluated. Decision logic pending algorithm implementation.
+request_254,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 3535.20 USD evaluated. Decision logic pending algorithm implementation.
+request_255,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 3345000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_256,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 218700.00 INR evaluated. Decision logic pending algorithm implementation.
+request_257,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1352.40 USD evaluated. Decision logic pending algorithm implementation.
+request_258,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1113.60 USD evaluated. Decision logic pending algorithm implementation.
+request_259,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 935.00 EUR evaluated. Decision logic pending algorithm implementation.
+request_260,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 52079000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_261,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1830.40 EUR evaluated. Decision logic pending algorithm implementation.
+request_262,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 9236000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_263,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 51546.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_264,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 111300.00 INR evaluated. Decision logic pending algorithm implementation.
+request_265,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 45970.00 INR evaluated. Decision logic pending algorithm implementation.
+request_266,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 935.00 EUR evaluated. Decision logic pending algorithm implementation.
+request_267,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 1925.00 EUR evaluated. Decision logic pending algorithm implementation.
+request_268,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 2426.60 EUR evaluated. Decision logic pending algorithm implementation.
+request_269,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 15490.00 ZAR evaluated. Decision logic pending algorithm implementation.
+request_270,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 3028.80 USD evaluated. Decision logic pending algorithm implementation.
+request_271,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 91300.00 INR evaluated. Decision logic pending algorithm implementation.
+request_272,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 13585000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_273,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 15861000.00 IDR evaluated. Decision logic pending algorithm implementation.
+request_274,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 2713.70 EUR evaluated. Decision logic pending algorithm implementation.
+request_275,0,not_affordable,not_recommended,none,,none,Placeholder stub: Request for 15884000.00 IDR evaluated. Decision logic pending algorithm implementation.
