@@ -76,11 +76,11 @@ def test_currency_converter():
     print(f"  ZAR -> IDR chained rate on 2024-04-15: {rate_zar_idr:.4f}")
 
     # 6. Multi-hop chaining: IDR -> ZAR on 2024-04-15
-    # IDR -> USD (1/15833.33) -> EUR (0.92) -> ZAR (20)
+    # Must be the EXACT reciprocal of ZAR -> IDR (1 / 862.916485 = 0.001158860...)
     rate_idr_zar = converter.get_rate("IDR", "ZAR", "2024-04-15")
-    expected_idr_zar = (1.0 / 15833.33) * 0.92 * 20.0
-    assert abs(rate_idr_zar - expected_idr_zar) < 1e-6, f"Expected {expected_idr_zar}, got {rate_idr_zar}"
-    print(f"  IDR -> ZAR chained rate on 2024-04-15: {rate_idr_zar:.8f}")
+    assert abs(rate_idr_zar * rate_zar_idr - 1.0) < 1e-9, f"Expected product 1.0, got {rate_idr_zar * rate_zar_idr}"
+    assert abs(rate_idr_zar - (1.0 / rate_zar_idr)) < 1e-9
+    print(f"  IDR -> ZAR reciprocal rate on 2024-04-15: {rate_idr_zar:.8f} (product: {rate_idr_zar * rate_zar_idr:.10f})")
 
     # 7. Exact date required: Non-existent date raises MissingExchangeRateError
     try:
@@ -89,6 +89,26 @@ def test_currency_converter():
     except MissingExchangeRateError as e:
         print(f"  Correctly caught missing date error: {e}")
 
+    # 8. File-wide consistency assertion:
+    # convert(A, B, date) * convert(B, A, date) == 1.0 for every reachable pair on every date
+    dates_checked = 0
+    pairs_checked = 0
+    all_currencies = ["EUR", "USD", "ZAR", "IDR", "INR"]
+    for date_str in converter.available_dates:
+        dates_checked += 1
+        for i, c1 in enumerate(all_currencies):
+            for c2 in all_currencies[i+1:]:
+                try:
+                    r1 = converter.get_rate(c1, c2, date_str)
+                    r2 = converter.get_rate(c2, c1, date_str)
+                    prod = r1 * r2
+                    assert abs(prod - 1.0) < 1e-9, f"Failed on {date_str} for {c1}<->{c2}: {r1} * {r2} = {prod}"
+                    pairs_checked += 1
+                except MissingExchangeRateError:
+                    # Currency pair is in disconnected components or not present on this date
+                    pass
+
+    print(f"  File-wide reciprocal test PASSED! Verified across {dates_checked} dates and {pairs_checked} reachable currency pairs.")
     print("CurrencyConverter tests PASSED!\n")
 
 
@@ -252,11 +272,55 @@ def test_end_to_end_pipeline():
     print("End-to-End Pipeline test PASSED!\n")
 
 
+def test_forecast_engine():
+    print("Testing ForecastEngine...")
+    from forecast import ForecastEngine
+    dataset_dir = code_dir.parent / "dataset"
+    store = load_dataset(dataset_dir)
+    engine = ForecastEngine(store.currency_converter)
+
+    # 1. Test event inclusion / exclusion rules
+    from models import FinancialEvent
+    ev_cancelled = FinancialEvent("e1", "u1", "exp", "desc", "shop", "debit", 10.0, "USD", "2024-01-01", "2024-01-01", "cancelled", None, "fixed", None)
+    ev_failed = FinancialEvent("e2", "u1", "exp", "desc", "shop", "debit", 10.0, "USD", "2024-01-01", "2024-01-01", "failed", None, "fixed", None)
+    ev_unrealized = FinancialEvent("e3", "u1", "inv", "desc", "inv", "credit", 100.0, "USD", "2024-01-01", "2024-01-01", "unrealized", None, "fixed", None)
+    ev_pending_credit = FinancialEvent("e4", "u1", "inc", "desc", "salary", "credit", 500.0, "USD", "2024-01-01", "2024-01-01", "pending", None, "fixed", None)
+    ev_pending_debit = FinancialEvent("e5", "u1", "exp", "desc", "shop", "debit", 50.0, "USD", "2024-01-01", "2024-01-01", "pending", None, "fixed", None)
+    ev_settled = FinancialEvent("e6", "u1", "exp", "desc", "shop", "debit", 20.0, "USD", "2024-01-01", "2024-01-01", "settled", None, "fixed", None)
+    ev_scheduled = FinancialEvent("e7", "u1", "inc", "desc", "salary", "credit", 1000.0, "USD", "2024-01-01", "2024-01-01", "scheduled", None, "fixed", None)
+
+    assert not engine.is_included_event(ev_cancelled), "Should exclude cancelled"
+    assert not engine.is_included_event(ev_failed), "Should exclude failed"
+    assert not engine.is_included_event(ev_unrealized), "Should exclude unrealized"
+    assert not engine.is_included_event(ev_pending_credit), "Should exclude pending credit"
+    assert engine.is_included_event(ev_pending_debit), "Should include pending debit"
+    assert engine.is_included_event(ev_settled), "Should include settled"
+    assert engine.is_included_event(ev_scheduled), "Should include scheduled"
+    print("  Inclusion/exclusion rules PASSED!")
+
+    # 2. Test deduplication
+    ev_dup = FinancialEvent("e6_dup_id", "u1", "exp", "desc", "shop", "debit", 20.0, "USD", "2024-01-01", "2024-01-01", "settled", None, "fixed", None)
+    deduped = engine.deduplicate_events([ev_settled, ev_dup])
+    assert len(deduped) == 1, "Should collapse identical events with different event_id"
+    print("  Deduplication PASSED!")
+
+    # 3. Test on request_01 (sample request)
+    sample_01 = store.sample_requests[0]
+    ctx_01 = store.get_context_for_request(sample_01.request_id)
+    res_01 = engine.run_forecast(sample_01, ctx_01.profile, ctx_01.user_events)
+    assert res_01.amount_safe_to_pay > 0
+    assert res_01.min_margin > 0
+    print(f"  Forecast on request_01 PASSED! amount_safe={res_01.amount_safe_to_pay:.2f}, min_margin={res_01.min_margin:.2f}")
+
+    print("ForecastEngine tests PASSED!\n")
+
+
 def main():
     test_currency_converter()
     test_validator_rules()
     test_sample_requests_validation()
     test_loaders_and_joins()
+    test_forecast_engine()
     test_end_to_end_pipeline()
     print("ALL TESTS COMPLETED SUCCESSFULLY!")
 

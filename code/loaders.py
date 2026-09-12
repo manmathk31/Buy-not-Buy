@@ -419,7 +419,20 @@ class DatasetStore:
         """Assemble fully joined context for evaluation of request_id."""
         req = self.requests_by_id.get(request_id)
         if not req:
-            raise KeyError(f"Request '{request_id}' not found in requests.csv")
+            sample_req = self.sample_requests_by_id.get(request_id)
+            if sample_req:
+                req = Request(
+                    request_id=sample_req.request_id,
+                    user_id=sample_req.user_id,
+                    request_date=sample_req.request_date,
+                    request_type=sample_req.request_type,
+                    requested_amount=sample_req.requested_amount,
+                    desired_completion_date=sample_req.desired_completion_date,
+                    allows_partial_payment=sample_req.allows_partial_payment,
+                    request_text=sample_req.request_text,
+                )
+            else:
+                raise KeyError(f"Request '{request_id}' not found in requests.csv or sample_requests.csv")
 
         user_id = req.user_id
         profile = self.profiles_by_user.get(user_id)

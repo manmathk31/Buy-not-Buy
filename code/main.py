@@ -29,43 +29,74 @@ from models import (
 )
 from loaders import DatasetStore, RequestContext, load_dataset
 from validator import REQUIRED_COLUMNS, validate_output_file
+from forecast import ForecastEngine
 
 
-def predict_affordability(ctx: RequestContext) -> OutputRecord:
+def predict_affordability(ctx: RequestContext, engine: ForecastEngine) -> OutputRecord:
     """Predict affordability and recommendation for a single financial request.
 
-    TODO: In the next turn, implement the complete decision algorithm:
-      1. Reconstruct baseline cash flow position from financial_profile and settled/scheduled events.
-      2. Match foreign currency cash events to dated exchange rates using CurrencyConverter.
-      3. Process untrusted message/image evidence to detect salary changes, expense updates, or missing amounts.
-      4. Run 90-day conservative cash flow forecasting ensuring minimum_balance_to_keep is never breached.
-      5. Calculate amount_safe_to_pay on request_date.
-      6. Determine earliest_date_for_full_payment.
-      7. Evaluate eligible payment methods from user profile preferences and request options.
-      8. If needed, identify up to 3 permitted spending changes (stop / reduce_to) on flexible categories.
-      9. Rank safe plans according to problem_statement.md §Choosing Between Safe Plans.
-      10. Generate concise, grounded decision_explanation.
+    Reconstructs 90-day cash flow forecast, calculates amount_safe_to_pay,
+    and determines earliest_date_for_full_payment using ForecastEngine.
 
-    Returns:
-      OutputRecord matching output.csv specifications.
+    TODO (Upcoming turn):
+      1. Multimodal image/message evidence extraction (missing amounts, salary changes).
+      2. Payment-method eligibility check against user profile preferences and seller options.
+      3. Spending change optimization (stop / reduce_to up to 3 permitted flexible categories).
+      4. Safe plan ranking algorithm and decision_explanation generation.
     """
     req = ctx.request
     prof = ctx.profile
 
-    # STUB PLACEHOLDER: conservative not_affordable default
-    # Will be replaced by the exact algorithm in the next iteration.
+    # Run 90-day cash flow simulation
+    forecast_res = engine.run_forecast(req, prof, ctx.user_events)
+    amount_safe = forecast_res.amount_safe_to_pay
+    earliest_date = forecast_res.earliest_date_for_full_payment
+
+    # Format amounts cleanly
+    safe_amt_str = f"{amount_safe:.2f}".rstrip("0").rstrip(".") if isinstance(amount_safe, float) else str(amount_safe)
+    req_amt_str = f"{req.requested_amount:.2f}".rstrip("0").rstrip(".") if isinstance(req.requested_amount, float) else str(req.requested_amount)
+
+    # Decision stub based on forecast safety check
+    if amount_safe >= req.requested_amount - 1e-4:
+        status = AffordabilityStatus.AFFORDABLE_NOW
+        method = RecommendedPaymentMethod.FULL_PAYMENT
+        plan = f"{req.request_date}:{safe_amt_str}"
+        earliest = req.request_date
+        spending = "none"
+        explanation = (
+            f"Pay {prof.home_currency} {safe_amt_str} today. "
+            f"This leaves at least {prof.home_currency} {prof.minimum_balance_to_keep:.2f} available over the next 90 days."
+        )
+    elif earliest_date:
+        status = AffordabilityStatus.AFFORDABLE_LATER
+        method = RecommendedPaymentMethod.WAIT
+        plan = f"{earliest_date}:{req_amt_str}"
+        earliest = earliest_date
+        spending = "none"
+        explanation = (
+            f"Wait until {earliest_date}, then pay {prof.home_currency} {req_amt_str} in full. "
+            f"Paying earlier would take the balance below the {prof.home_currency} {prof.minimum_balance_to_keep:.2f} minimum."
+        )
+    else:
+        status = AffordabilityStatus.NOT_AFFORDABLE
+        method = RecommendedPaymentMethod.NOT_RECOMMENDED
+        plan = "none"
+        earliest = ""
+        spending = "none"
+        explanation = (
+            f"Do not proceed with the {prof.home_currency} {req_amt_str} request. "
+            f"The full amount cannot be completed safely within 90 days without spending adjustments."
+        )
+
     return OutputRecord(
         request_id=req.request_id,
-        amount_safe_to_pay=0.0,
-        affordability_status=AffordabilityStatus.NOT_AFFORDABLE,
-        recommended_payment_method=RecommendedPaymentMethod.NOT_RECOMMENDED,
-        payment_plan="none",
-        earliest_date_for_full_payment="",
-        spending_changes_needed="none",
-        decision_explanation=(
-            f"Placeholder stub: Request for {req.requested_amount:.2f} {prof.home_currency} evaluated. "
-            f"Decision logic pending algorithm implementation."
-        ),
+        amount_safe_to_pay=amount_safe,
+        affordability_status=status,
+        recommended_payment_method=method,
+        payment_plan=plan,
+        earliest_date_for_full_payment=earliest,
+        spending_changes_needed=spending,
+        decision_explanation=explanation,
     )
 
 
@@ -100,11 +131,12 @@ def run_pipeline(
     print(f"  - {len(store.messages)} messages")
     print(f"  - {len(store.images)} image links")
 
-    print("\nProcessing requests through decision stub...")
+    engine = ForecastEngine(store.currency_converter)
+    print("\nProcessing requests through 90-day forecast engine...")
     output_records: List[OutputRecord] = []
     for req in store.requests:
         ctx = store.get_context_for_request(req.request_id)
-        record = predict_affordability(ctx)
+        record = predict_affordability(ctx, engine)
         output_records.append(record)
 
     print(f"Writing {len(output_records)} output records to: {out_path}")
