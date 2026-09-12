@@ -153,9 +153,167 @@ def analyze_recurrence_anomalies(dataset_dir: Path):
         print(f"  {cat:<25}: single={single:>4}, multiple={multiple:>4}, strict_recurring(med+-3)={strict:>4}")
 
 
+def diagnose_parts_a_b_c():
+    from datetime import timedelta
+    from loaders import load_dataset
+    from forecast import ForecastEngine
+    from extraction import ExtractionLayer, apply_extractions_to_events
+
+    dataset_dir = Path(__file__).resolve().parent.parent / "dataset"
+    store = load_dataset(dataset_dir)
+    engine = ForecastEngine(store.currency_converter)
+
+    extractor = ExtractionLayer()
+    image_results = {img.image_id: extractor.extract_image_amount(img, dataset_dir) for img in store.images}
+    message_amendments = [extractor.parse_message(m) for m in store.messages]
+    corrected_events = apply_extractions_to_events(store.events, image_results, message_amendments)
+
+    events_by_user = {}
+    for e in corrected_events:
+        events_by_user.setdefault(e.user_id, []).append(e)
+
+    sample_dict = {s.request_id: s for s in store.sample_requests}
+
+    print("\n" + "="*80)
+    print("PART A DIAGNOSTIC: user_08, user_05, user_25")
+    print("="*80)
+    for rid in ["request_08", "request_05", "request_25"]:
+        s = sample_dict[rid]
+        uid = s.user_id
+        prof = store.profiles_by_user[uid]
+        uevents = events_by_user[uid]
+        req_d = engine.parse_date(s.request_date)
+        print(f"\n--- {rid} ({uid}) ---")
+        print(f"Req Date: {s.request_date}, Req Amt: {s.requested_amount}, True Safe: {s.amount_safe_to_pay}")
+        print(f"Balance: {prof.current_available_balance}, Min Keep: {prof.minimum_balance_to_keep}, Home: {prof.home_currency}")
+        print(f"Initial Surplus: {prof.current_available_balance - prof.minimum_balance_to_keep:.2f}")
+        print(f"Protected Categories: {prof.protect_categories_list}")
+        
+        # Check messages
+        user_msgs = [m for m in store.messages if m.user_id == uid]
+        print(f"Messages for {uid}: {[m.message_text for m in user_msgs]}")
+        
+        from models import Request
+        req_obj = Request(
+            request_id=s.request_id,
+            user_id=s.user_id,
+            request_date=s.request_date,
+            request_type=s.request_type,
+            requested_amount=s.requested_amount,
+            desired_completion_date=s.desired_completion_date,
+            allows_partial_payment=s.allows_partial_payment,
+            request_text=s.request_text,
+        )
+        res = engine.run_forecast(req_obj, prof, uevents)
+        print(f"Engine Result: Safe={res.amount_safe_to_pay:.2f}, Earliest={res.earliest_date_for_full_payment}")
+        if uid == "user_25":
+            print(f"USER_25 DRAG CALCULATION:")
+            # Let's inspect drag components
+            prof = store.profiles_by_user[uid]
+            # print what drag computed
+            print(f"  Surplus: {prof.current_available_balance - prof.minimum_balance_to_keep}")
+
+    print("\n" + "="*80)
+    print("PART B DIAGNOSTIC: request_04, request_20, request_22, request_23")
+    print("="*80)
+    for rid in ["request_04", "request_20", "request_22", "request_23"]:
+        s = sample_dict[rid]
+        uid = s.user_id
+        prof = store.profiles_by_user[uid]
+        uevents = events_by_user[uid]
+        req_d = engine.parse_date(s.request_date)
+        req_obj = Request(
+            request_id=s.request_id,
+            user_id=s.user_id,
+            request_date=s.request_date,
+            request_type=s.request_type,
+            requested_amount=s.requested_amount,
+            desired_completion_date=s.desired_completion_date,
+            allows_partial_payment=s.allows_partial_payment,
+            request_text=s.request_text,
+        )
+        res = engine.run_forecast(req_obj, prof, uevents)
+        print(f"\n--- {rid} ({uid}) ---")
+        print(f"Req Date: {s.request_date}, Req Amt: {s.requested_amount}")
+        print(f"Earliest Calc: '{res.earliest_date_for_full_payment}' vs True: '{s.earliest_date_for_full_payment}'")
+        print(f"Safe Calc: {res.amount_safe_to_pay:.2f} vs True: {s.amount_safe_to_pay:.2f}")
+        
+        # Check cash flow items around dates
+        true_d = engine.parse_date(s.earliest_date_for_full_payment) if s.earliest_date_for_full_payment else None
+        calc_d = engine.parse_date(res.earliest_date_for_full_payment) if res.earliest_date_for_full_payment else None
+        
+        dates_to_check = [d for d in [true_d, calc_d] if d is not None]
+        if dates_to_check:
+            min_check = min(dates_to_check) - timedelta(days=2)
+            max_check = max(dates_to_check) + timedelta(days=2)
+            print(f"Margin trace between {min_check} and {max_check}:")
+            for d in sorted(res.daily_balances.keys()):
+                if min_check <= d <= max_check:
+                    # check if full payment safe on day d:
+                    # balance >= min_keep + requested_amount AND remaining >= min_keep
+                    is_safe_full = (res.daily_balances[d] >= prof.minimum_balance_to_keep + s.requested_amount)
+                    # check remaining min margin
+                    rem_margin = min(res.daily_margins[d2] for d2 in res.daily_margins if d2 >= d)
+                    print(f"  {d} | bal={res.daily_balances[d]:.2f} | margin={res.daily_margins[d]:.2f} | rem_min_margin={rem_margin:.2f} | bal>=min+req:{is_safe_full}")
+        
+        if uid == "user_04":
+            print(f"USER_04 PROFILE:")
+            print(f"  Protected: {prof.protect_categories_list}")
+            print(f"  Adjustable: {prof.reduce_categories_list}")
+            print(f"  Initial Surplus: {prof.current_available_balance - prof.minimum_balance_to_keep}")
+
+    print("\n" + "="*80)
+    print("PART C DEEP DIVE: request_02, request_07, request_10, request_17, request_19")
+    print("="*80)
+    for rid in ["request_02", "request_07", "request_10", "request_17", "request_19"]:
+        s = sample_dict[rid]
+        uid = s.user_id
+        prof = store.profiles_by_user[uid]
+        uevents = events_by_user[uid]
+        req_d = engine.parse_date(s.request_date)
+        req_obj = Request(
+            request_id=s.request_id,
+            user_id=s.user_id,
+            request_date=s.request_date,
+            request_type=s.request_type,
+            requested_amount=s.requested_amount,
+            desired_completion_date=s.desired_completion_date,
+            allows_partial_payment=s.allows_partial_payment,
+            request_text=s.request_text,
+        )
+        res = engine.run_forecast(req_obj, prof, uevents)
+        print(f"\n--- {rid} ({uid}) ---")
+        print(f"Req Date: {s.request_date}, Req Amt: {s.requested_amount}")
+        print(f"Balance: {prof.current_available_balance}, Min Keep: {prof.minimum_balance_to_keep}, Initial Surplus: {prof.current_available_balance - prof.minimum_balance_to_keep:.2f}")
+        print(f"Safe Calc: {res.amount_safe_to_pay:.2f} vs True: {s.amount_safe_to_pay:.2f} (diff: {abs(res.amount_safe_to_pay - s.amount_safe_to_pay):.2f})")
+        print(f"Earliest Calc: '{res.earliest_date_for_full_payment}' vs True: '{s.earliest_date_for_full_payment}'")
+        
+        # Limiting date
+        min_d = min(res.daily_margins.keys(), key=lambda d: res.daily_margins[d])
+        print(f"Limiting Date (Calc): {min_d} | Margin: {res.daily_margins[min_d]:.2f} | Balance: {res.daily_balances[min_d]:.2f}")
+        
+        # Check event_1545 and event_1700
+        for eid in ["event_1545", "event_1700"]:
+            matching = [e for e in store.events if e.event_id == eid]
+            if matching:
+                ev = matching[0]
+                print(f"EVENT {eid}: date={ev.event_date}, s_date={ev.settlement_date}, status={ev.status}, amt={ev.amount}, dir={ev.direction}, desc={ev.description}")
+                
+        if uid == "user_10":
+            print(f"USER_10 SIMULATION WITHOUT GIG INCOME:")
+            # Filter out credit events from candidate recurrence
+            non_gig_events = [e for e in uevents if not (e.category == "salary" and any(w in e.description.lower() for w in ("driver", "delivery", "task", "app")))]
+            res_nogig = engine.run_forecast(req_obj, prof, non_gig_events)
+            print(f"  Safe without gig: {res_nogig.amount_safe_to_pay:.2f} (True is 12700.00)")
+            min_d = min(res_nogig.daily_margins.keys(), key=lambda d: res_nogig.daily_margins[d])
+            print(f"  Min Margin Date: {min_d} | Margin: {res_nogig.daily_margins[min_d]:.2f}")
+            
+        # Messages for this user
+        u_msgs = [m for m in store.messages if m.user_id == uid]
+        for m in u_msgs:
+            print(f"  MESSAGE: {m.message_id} | related_event={m.related_event_id} | text={m.message_text}")
+
+
 if __name__ == "__main__":
-    base_dir = Path(__file__).resolve().parent.parent / "dataset"
-    inspect_exchange_rates(base_dir)
-    inspect_financial_events(base_dir, ["user_01", "user_02", "user_03"])
-    analyze_recurrence_anomalies(base_dir)
+    diagnose_parts_a_b_c()
 

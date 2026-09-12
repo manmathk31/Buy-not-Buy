@@ -138,7 +138,13 @@ def run_pipeline(
     image_results = {img.image_id: extractor.extract_image_amount(img, dataset_path) for img in store.images}
     message_amendments = [extractor.parse_message(m) for m in store.messages]
     corrected_events = apply_extractions_to_events(store.events, image_results, message_amendments)
-    print(f"Extracted verified amounts for {len(image_results)} images, parsed {len(message_amendments)} messages.")
+
+    valid_img_count = sum(1 for r in image_results.values() if r.is_valid)
+    synth_count = sum(1 for a in message_amendments if a.amendment_type == "new_event" and a.is_valid)
+    api_report = extractor.get_api_report()
+    print(f"Extracted amounts for {valid_img_count}/{len(image_results)} images, "
+          f"parsed {len(message_amendments)} messages ({synth_count} new events synthesized).")
+    print(f"API usage: {api_report['api_calls_total']} calls, {api_report['api_errors_total']} errors.")
 
     # Group corrected events by user
     events_by_user: dict[str, list[FinancialEvent]] = {}

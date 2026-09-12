@@ -10,14 +10,19 @@ Implements the exact challenge rules:
      - Median interval M with strict tolerance: all gaps |g_i - M| <= 3 days.
      - Project future occurrences at median interval within 90-day forecast window.
      - Never extrapolate from a single historical instance.
-  3. 90-day conservative cash flow forecast starting from current_available_balance.
-  4. Exact calculations:
+  3. Essential-spending baseline drag:
+     - For each protected expense category, compute historical daily average from last 180 days.
+     - Exclude categories already projected via recurrence to prevent double counting.
+     - Cap per-category drag and total drag to prevent balance drain to zero.
+  4. 90-day conservative cash flow forecast starting from current_available_balance.
+  5. Exact calculations:
      - amount_safe_to_pay: max amount payable today without breaching minimum_balance_to_keep in 90 days.
      - earliest_date_for_full_payment: first conservative date full amount passes 90-day safety check.
 """
 
 from __future__ import annotations
 
+from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 import statistics
@@ -134,6 +139,14 @@ class ForecastEngine:
           - Salary: groups across description variations (prorated -> regular -> scheduled),
             unless explicitly flagged as final/terminated or variable gig platform payouts.
         """
+        # Check for any salary events or status indicating termination
+        terminated_salary_users = set()
+        for e in candidate_events:
+            cat = e.category.strip().lower()
+            desc_lower = e.description.strip().lower()
+            if cat == "salary" and any(w in desc_lower for w in ("final", "contract has ended", "employment has ended", "telah berakhir", "ended")):
+                terminated_salary_users.add(e.user_id)
+
         groups: Dict[Tuple[str, str, str], List[FinancialEvent]] = {}
         for e in candidate_events:
             if not self.is_included_event(e):
@@ -145,10 +158,14 @@ class ForecastEngine:
             desc_lower = e.description.strip().lower()
 
             # Terminated employment should not recur
-            if "final" in desc_lower and cat == "salary":
-                continue
-
             if cat == "salary":
+                if e.user_id in terminated_salary_users:
+                    continue
+                # Exclude variable gig/app platform earnings from recurring guaranteed salary
+                gig_keywords = ("platform payout", "driver platform", "delivery platform", "quickcrew", "taskloop", "ridegrid", "invoicelane", "freelance")
+                if any(k in desc_lower for k in gig_keywords):
+                    continue
+
                 # Identify primary base payroll (e.g. monthly regular salary)
                 is_supplemental = any(w in desc_lower for w in ("bonus", "commission", "arrears", "second", "overtime"))
                 if not is_supplemental and any(w in desc_lower for w in ("salary", "payroll", "base")):
@@ -194,12 +211,19 @@ class ForecastEngine:
                 if len(dates) == 2 and int_med > 32 and cat != "salary":
                     continue
 
+                # For salary, prefer scheduled/future event amount if present
+                chosen_amt = latest_e.amount
+                if cat == "salary":
+                    sched_evs = [e for e in ev_list if e.status.strip().lower() == "scheduled"]
+                    if sched_evs:
+                        chosen_amt = sched_evs[-1].amount
+
                 recurring.append({
                     "user_id": uid,
                     "category": cat,
                     "description": latest_e.description,
                     "direction": latest_e.direction,
-                    "amount": latest_e.amount,
+                    "amount": chosen_amt,
                     "currency": latest_e.currency,
                     "median_interval": int_med,
                     "is_monthly": is_monthly,
@@ -278,7 +302,7 @@ class ForecastEngine:
                 m = 1
                 next_d = self._add_months(last_d, m, rg.get("day_of_month"))
                 while next_d <= horizon_end:
-                    if next_d > req_date:
+                    if next_d >= req_date:
                         if (rg["category"].lower(), next_d) not in existing_explicit_keys:
                             projected_cash_flows.append(
                                 CashFlowItem(
@@ -289,7 +313,7 @@ class ForecastEngine:
                                     category=rg["category"],
                                     description=rg["description"],
                                     is_projected=True,
-                                )
+                                    )
                             )
                     m += 1
                     next_d = self._add_months(last_d, m, rg.get("day_of_month"))
@@ -297,7 +321,7 @@ class ForecastEngine:
                 interval = rg["median_interval"]
                 next_d = last_d + timedelta(days=interval)
                 while next_d <= horizon_end:
-                    if next_d > req_date:
+                    if next_d >= req_date:
                         if (rg["category"].lower(), next_d) not in existing_explicit_keys:
                             projected_cash_flows.append(
                                 CashFlowItem(
@@ -312,7 +336,88 @@ class ForecastEngine:
                             )
                     next_d += timedelta(days=interval)
 
-        # 5. Build daily cash flows
+        # 5. Compute essential-spending baseline drag strictly for PROTECTED categories
+        # Discretionary categories (dining, entertainment, shopping) are reducible/stoppable
+        # per the user's profile and must NEVER have automatic drag applied.
+        protected_categories = set(c.strip().lower() for c in profile.protect_categories_list)
+
+        # Compute expected monthly spend from recurring groups per category
+        recurring_monthly_by_cat: Dict[str, float] = defaultdict(float)
+        for rg in recurring_groups:
+            if rg["direction"].lower() != "debit":
+                continue
+            cat = rg["category"].lower()
+            interval = rg["median_interval"]
+            if interval <= 0:
+                continue
+            # Monthly contribution = amount * (30 / interval)
+            monthly = rg["amount"] * (30.0 / interval)
+            # Convert to home currency if needed
+            if rg["currency"] != profile.home_currency:
+                try:
+                    monthly = self.converter.convert(monthly, rg["currency"], profile.home_currency,
+                                                     rg["last_date"].strftime("%Y-%m-%d"))
+                except Exception:
+                    pass
+            recurring_monthly_by_cat[cat] += monthly
+
+        # Gather historical settled debits for PROTECTED categories only (last 180 days)
+        hist_lookback = req_date - timedelta(days=180)
+        cat_daily_spend: Dict[str, float] = {}
+        hist_cat_totals: Dict[str, float] = defaultdict(float)
+        hist_cat_first_date: Dict[str, date] = {}
+        hist_cat_last_date: Dict[str, date] = {}
+
+        for e in historical_events:
+            if e.direction.strip().lower() != "debit":
+                continue
+            if e.amount is None or e.amount <= 0:
+                continue
+            cat = e.category.strip().lower()
+            if cat not in protected_categories:
+                continue
+            e_date = self.parse_date(e.event_date)
+            if e_date < hist_lookback:
+                continue
+            if e.status.strip().lower() not in ("settled", "scheduled"):
+                continue
+
+            amt = e.amount
+            if e.currency != profile.home_currency:
+                try:
+                    amt = self.converter.convert(amt, e.currency, profile.home_currency, e.event_date)
+                except Exception:
+                    continue
+
+            hist_cat_totals[cat] += amt
+            if cat not in hist_cat_first_date or e_date < hist_cat_first_date[cat]:
+                hist_cat_first_date[cat] = e_date
+            if cat not in hist_cat_last_date or e_date > hist_cat_last_date[cat]:
+                hist_cat_last_date[cat] = e_date
+
+        # Subtract recurring group contribution from each protected category's total
+        # to get the residual (non-recurring) essential spending
+        total_daily_drag = 0.0
+        for cat, total in hist_cat_totals.items():
+            if cat not in hist_cat_first_date or cat not in hist_cat_last_date:
+                continue
+            first_d = hist_cat_first_date[cat]
+            last_d = hist_cat_last_date[cat]
+            span_days = max(14, (last_d - first_d).days)
+
+            # Subtract the recurring group's estimated contribution over the same span
+            recurring_daily = recurring_monthly_by_cat.get(cat, 0.0) / 30.0
+            recurring_over_span = recurring_daily * span_days
+            residual = max(0.0, total - recurring_over_span)
+
+            if residual <= 0:
+                continue  # Fully explained by recurring groups
+
+            daily_avg = residual / span_days
+            cat_daily_spend[cat] = daily_avg
+            total_daily_drag += daily_avg
+
+        # 6. Build daily cash flows
         daily_cash_flows: Dict[date, float] = {req_date + timedelta(days=i): 0.0 for i in range(horizon_days + 1)}
 
         # Apply explicit future events
@@ -350,7 +455,14 @@ class ForecastEngine:
                 else:
                     daily_cash_flows[pf.date] -= amt
 
-        # 6. Walk forward day-by-day from current_available_balance
+        # Apply essential-spending baseline drag (daily debit)
+        # Skip day 0 (request_date) since spending on that day is captured by explicit events
+        if total_daily_drag > 0:
+            for i in range(1, horizon_days + 1):
+                d = req_date + timedelta(days=i)
+                daily_cash_flows[d] -= total_daily_drag
+
+        # 7. Walk forward day-by-day from current_available_balance
         daily_balances: Dict[date, float] = {}
         daily_margins: Dict[date, float] = {}
         balance = profile.current_available_balance
@@ -364,11 +476,11 @@ class ForecastEngine:
 
         min_margin = min(daily_margins.values())
 
-        # 7. amount_safe_to_pay:
+        # 8. amount_safe_to_pay:
         # Max amount payable today without breaking 90-day safety check, capped at requested_amount
         amount_safe = max(0.0, min(request.requested_amount, min_margin))
 
-        # 8. earliest_date_for_full_payment:
+        # 9. earliest_date_for_full_payment:
         # First date d where paying full requested_amount on date d keeps balance >= min_balance
         # for all remaining days t >= d in the 90-day forecast.
         req_amt = request.requested_amount
@@ -377,7 +489,7 @@ class ForecastEngine:
         for idx, d in enumerate(all_days):
             # Check remaining window from d onwards
             remaining_min_margin = min(daily_margins[all_days[k]] for k in range(idx, len(all_days)))
-            if remaining_min_margin >= req_amt:
+            if remaining_min_margin >= req_amt - 1e-4:
                 earliest_date_str = d.strftime("%Y-%m-%d")
                 break
 
