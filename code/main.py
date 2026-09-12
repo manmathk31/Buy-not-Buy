@@ -12,9 +12,27 @@ from __future__ import annotations
 
 import argparse
 import csv
+import os
 import sys
 from pathlib import Path
 from typing import List, Optional
+
+# Load .env file automatically if present
+def _load_env_file():
+    root_dir = Path(__file__).resolve().parent.parent
+    for env_path in [root_dir / ".env", Path(".env")]:
+        if env_path.exists():
+            with open(env_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("#") and "=" in line:
+                        k, v = line.split("=", 1)
+                        k = k.strip()
+                        v = v.strip().strip("'\"")
+                        if k and k not in os.environ:
+                            os.environ[k] = v
+
+_load_env_file()
 
 # Ensure local imports work whether executed from repo root or code/
 current_dir = Path(__file__).resolve().parent
@@ -34,70 +52,25 @@ from forecast import ForecastEngine
 from extraction import ExtractionLayer, apply_extractions_to_events
 
 
+from decision import DecisionEngine
+
+
 def predict_affordability(
     ctx: RequestContext,
-    engine: ForecastEngine,
+    decision_engine: DecisionEngine,
     user_events: Optional[List[FinancialEvent]] = None,
 ) -> OutputRecord:
     """Predict affordability and recommendation for a single financial request.
 
-    Reconstructs 90-day cash flow forecast, calculates amount_safe_to_pay,
-    and determines earliest_date_for_full_payment using ForecastEngine.
+    Reconstructs 90-day cash flow forecast, evaluates eligible candidate plans,
+    ranks payment methods, and outputs strictly compliant OutputRecord.
     """
-    req = ctx.request
-    prof = ctx.profile
     events = user_events if user_events is not None else ctx.user_events
-
-    # Run 90-day cash flow simulation
-    forecast_res = engine.run_forecast(req, prof, events)
-    amount_safe = forecast_res.amount_safe_to_pay
-    earliest_date = forecast_res.earliest_date_for_full_payment
-
-    # Format amounts cleanly
-    safe_amt_str = f"{amount_safe:.2f}".rstrip("0").rstrip(".") if isinstance(amount_safe, float) else str(amount_safe)
-    req_amt_str = f"{req.requested_amount:.2f}".rstrip("0").rstrip(".") if isinstance(req.requested_amount, float) else str(req.requested_amount)
-
-    # Decision stub based on forecast safety check
-    if amount_safe >= req.requested_amount - 1e-4:
-        status = AffordabilityStatus.AFFORDABLE_NOW
-        method = RecommendedPaymentMethod.FULL_PAYMENT
-        plan = f"{req.request_date}:{safe_amt_str}"
-        earliest = req.request_date
-        spending = "none"
-        explanation = (
-            f"Pay {prof.home_currency} {safe_amt_str} today. "
-            f"This leaves at least {prof.home_currency} {prof.minimum_balance_to_keep:.2f} available over the next 90 days."
-        )
-    elif earliest_date:
-        status = AffordabilityStatus.AFFORDABLE_LATER
-        method = RecommendedPaymentMethod.WAIT
-        plan = f"{earliest_date}:{req_amt_str}"
-        earliest = earliest_date
-        spending = "none"
-        explanation = (
-            f"Wait until {earliest_date}, then pay {prof.home_currency} {req_amt_str} in full. "
-            f"Paying earlier would take the balance below the {prof.home_currency} {prof.minimum_balance_to_keep:.2f} minimum."
-        )
-    else:
-        status = AffordabilityStatus.NOT_AFFORDABLE
-        method = RecommendedPaymentMethod.NOT_RECOMMENDED
-        plan = "none"
-        earliest = ""
-        spending = "none"
-        explanation = (
-            f"Do not proceed with the {prof.home_currency} {req_amt_str} request. "
-            f"The full amount cannot be completed safely within 90 days without spending adjustments."
-        )
-
-    return OutputRecord(
-        request_id=req.request_id,
-        amount_safe_to_pay=amount_safe,
-        affordability_status=status,
-        recommended_payment_method=method,
-        payment_plan=plan,
-        earliest_date_for_full_payment=earliest,
-        spending_changes_needed=spending,
-        decision_explanation=explanation,
+    return decision_engine.evaluate_request(
+        request=ctx.request,
+        profile=ctx.profile,
+        user_events=events,
+        payment_options=ctx.payment_options,
     )
 
 
@@ -151,13 +124,13 @@ def run_pipeline(
     for e in corrected_events:
         events_by_user.setdefault(e.user_id, []).append(e)
 
-    engine = ForecastEngine(store.currency_converter)
-    print("\nProcessing requests through 90-day forecast engine...")
+    decision_engine = DecisionEngine(store.currency_converter)
+    print("\nProcessing requests through 90-day forecast and DecisionEngine...")
     output_records: List[OutputRecord] = []
     for req in store.requests:
         ctx = store.get_context_for_request(req.request_id)
         u_events = events_by_user.get(req.user_id, ctx.user_events)
-        record = predict_affordability(ctx, engine, u_events)
+        record = predict_affordability(ctx, decision_engine, u_events)
         output_records.append(record)
 
     print(f"Writing {len(output_records)} output records to: {out_path}")

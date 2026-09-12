@@ -18,6 +18,23 @@ from datetime import datetime, date
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
 
+# Load .env file automatically if present
+def _load_env_file():
+    root_dir = Path(__file__).resolve().parent.parent
+    for env_path in [root_dir / ".env", Path(".env")]:
+        if env_path.exists():
+            with open(env_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("#") and "=" in line:
+                        k, v = line.split("=", 1)
+                        k = k.strip()
+                        v = v.strip().strip("'\"")
+                        if k and k not in os.environ:
+                            os.environ[k] = v
+
+_load_env_file()
+
 from models import FinancialEvent, Message, ImageRecord
 
 
@@ -87,13 +104,15 @@ class ExtractionLayer:
         api_key: Optional[str] = None,
         model_name: Optional[str] = None,
     ):
-        # Allow user to provide API key via environment or initialization
+        # GEMINI_API_KEY read strictly from environment or optional init parameter
         self.api_key = api_key or os.environ.get("GEMINI_API_KEY")
-        # Support Gemini 2.5 / 3.5 Flash Lite or default
-        self.model_name = model_name or os.environ.get("GEMINI_MODEL", "gemini-2.5-flash-lite")
-        # API usage tracking
+        # Default model identifier set to gemini-3.5-flash-lite
+        self.model_name = model_name or os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite")
+        # API usage and token tracking
         self.api_calls_count = 0
         self.api_errors_count = 0
+        self.input_tokens_total = 0
+        self.output_tokens_total = 0
 
     def validate_image_extraction(self, result: ImageExtractionResult) -> bool:
         """Validate that extracted amount is a strictly positive, parseable float."""
@@ -156,31 +175,11 @@ class ExtractionLayer:
         amendment.is_valid = True
         return True
 
-    # Verified reference extractions for offline and pre-API execution
-    VERIFIED_IMAGE_AMOUNTS: Dict[str, float] = {
-        "image_01": 4365000.0,   # user_03 Aug 2019 net salary
-        "image_02": 63952.0,     # user_16 rent renewal (+12% on 57100)
-        "image_03": 41272.0,     # user_17 bulk groceries (Net Amount)
-        "image_04": 2854.0,      # user_19 delivered groceries (Item Bill)
-        "image_05": 7784.29,     # user_20 telecom/utilities bill
-        "image_06": 3051.0,      # user_33
-        "image_07": 3231.0,      # user_35
-        "image_08": 4535.0,      # user_48
-        "image_09": 5170.0,      # user_55
-        "image_10": 6033.0,      # user_64
-        "image_11": 6859.0,      # user_73
-        "image_12": 7307.0,      # user_78
-        "image_13": 7941.0,      # user_84
-        "image_14": 9421.0,      # user_101
-        "image_15": 9806.0,      # user_105
-        "image_16": 10521.0,     # user_113
-    }
-
     def extract_image_amount(self, image_rec: ImageRecord, dataset_dir: Path) -> ImageExtractionResult:
         """Extract amount from linked image with strict positive float validation.
         
         Requires GEMINI_API_KEY in environment for real extraction.
-        Returns verified reference result or invalid result when no API key is available.
+        Returns invalid result when no API key is available so conservative fallback applies.
         """
         image_path = dataset_dir / image_rec.relative_file_path
 
@@ -201,22 +200,9 @@ class ExtractionLayer:
                 self.api_errors_count += 1
                 raw_err = f"API Error: {e}"
         else:
-            raw_err = "No GEMINI_API_KEY set; using verified reference extraction"
+            raw_err = "No GEMINI_API_KEY set; image extraction requires API access"
 
-        # Check verified reference extractions
-        if image_rec.image_id in self.VERIFIED_IMAGE_AMOUNTS:
-            ref_amt = self.VERIFIED_IMAGE_AMOUNTS[image_rec.image_id]
-            res = ImageExtractionResult(
-                image_id=image_rec.image_id,
-                event_id=image_rec.related_event_id,
-                extracted_amount=ref_amt,
-                confidence=1.0,
-                raw_model_output=f"Verified reference: {ref_amt}",
-                is_valid=True,
-            )
-            return res
-
-        # No API key and not in verified references: return invalid result for conservative fallback
+        # No API key or API failed: return invalid result so conservative fallback rule applies
         res = ImageExtractionResult(
             image_id=image_rec.image_id,
             event_id=image_rec.related_event_id,

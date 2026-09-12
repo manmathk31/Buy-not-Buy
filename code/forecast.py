@@ -368,6 +368,10 @@ class ForecastEngine:
         hist_cat_first_date: Dict[str, date] = {}
         hist_cat_last_date: Dict[str, date] = {}
 
+        # Exclude categories that already have explicit future debits or recurring groups
+        future_debit_categories = set(e.category.strip().lower() for e in included_future_events if e.direction.strip().lower() == "debit")
+        recurring_categories = set(rg["category"].strip().lower() for rg in recurring_groups if rg["direction"].strip().lower() == "debit")
+
         for e in historical_events:
             if e.direction.strip().lower() != "debit":
                 continue
@@ -375,6 +379,8 @@ class ForecastEngine:
                 continue
             cat = e.category.strip().lower()
             if cat not in protected_categories:
+                continue
+            if cat in future_debit_categories or cat in recurring_categories:
                 continue
             e_date = self.parse_date(e.event_date)
             if e_date < hist_lookback:
