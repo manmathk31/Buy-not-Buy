@@ -13,6 +13,7 @@ Enforces detailed metric calculation:
 from __future__ import annotations
 
 import csv
+import os
 from collections import Counter, defaultdict
 from pathlib import Path
 import sys
@@ -21,6 +22,22 @@ import sys
 code_dir = Path(__file__).resolve().parent.parent
 if str(code_dir) not in sys.path:
     sys.path.insert(0, str(code_dir))
+
+def _load_env_file():
+    root_dir = Path(__file__).resolve().parent.parent.parent
+    for env_path in [root_dir / ".env", Path(".env")]:
+        if env_path.exists():
+            with open(env_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("#") and "=" in line:
+                        k, v = line.split("=", 1)
+                        k = k.strip()
+                        v = v.strip().strip("'\"")
+                        if k and k not in os.environ:
+                            os.environ[k] = v
+
+_load_env_file()
 
 from loaders import load_dataset
 from forecast import ForecastEngine

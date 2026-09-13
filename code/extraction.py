@@ -13,10 +13,50 @@ from __future__ import annotations
 import json
 import os
 import re
+import time
+import urllib.error
 from dataclasses import dataclass
 from datetime import datetime, date
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
+
+
+class RateLimiter:
+    """Enforces 15 Requests Per Minute (15 RPM) rate limit and handles 429 backoff retries."""
+
+    def __init__(self, min_interval_seconds: float = 4.1):
+        self.min_interval = min_interval_seconds
+        self.last_call_time = 0.0
+
+    def throttle(self):
+        """Ensure minimum delay between consecutive API calls to prevent 429 Rate Limit errors."""
+        now = time.time()
+        elapsed = now - self.last_call_time
+        if elapsed < self.min_interval:
+            sleep_duration = self.min_interval - elapsed
+            time.sleep(sleep_duration)
+        self.last_call_time = time.time()
+
+    def execute_with_backoff(self, func, max_retries: int = 3):
+        """Execute HTTP request with rate limiting and exponential backoff on 429 / 5xx errors."""
+        for attempt in range(max_retries + 1):
+            self.throttle()
+            try:
+                return func()
+            except urllib.error.HTTPError as e:
+                # 429 Too Many Requests or 5xx server errors
+                if e.code in (429, 500, 502, 503, 504) and attempt < max_retries:
+                    backoff_delay = 5.0 * (2 ** attempt)
+                    print(f"API Rate Limit / HTTP {e.code} hit. Retrying in {backoff_delay:.1f}s (Attempt {attempt + 1}/{max_retries})...")
+                    time.sleep(backoff_delay)
+                else:
+                    raise
+            except Exception as e:
+                if attempt < max_retries:
+                    backoff_delay = 3.0 * (2 ** attempt)
+                    time.sleep(backoff_delay)
+                else:
+                    raise
 
 # Load .env file automatically if present
 def _load_env_file():
@@ -108,6 +148,8 @@ class ExtractionLayer:
         self.api_key = api_key or os.environ.get("GEMINI_API_KEY")
         # Default model identifier set to gemini-3.5-flash-lite
         self.model_name = model_name or os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite")
+        # Rate Limiter enforcing 15 Requests Per Minute (4.1s min interval) with exponential backoff
+        self.rate_limiter = RateLimiter(min_interval_seconds=4.1)
         # API usage and token tracking
         self.api_calls_count = 0
         self.api_errors_count = 0
@@ -243,18 +285,8 @@ class ExtractionLayer:
                 )
                 return amend
 
-        # If GEMINI_API_KEY is available in environment, invoke Gemini text
-        if self.api_key:
-            try:
-                self.api_calls_count += 1
-                amend = self._call_gemini_message_parser(msg)
-                if self.validate_message_amendment(amend):
-                    return amend
-            except Exception:
-                self.api_errors_count += 1
-
         # =====================================================
-        # Deterministic extraction for known message patterns
+        # Deterministic high-performance extraction for known message patterns
         # =====================================================
         amend_type = "unrelated"
         new_val: Optional[str] = None
@@ -470,11 +502,15 @@ class ExtractionLayer:
             headers={"Content-Type": "application/json"},
             method="POST",
         )
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            content = data["candidates"][0]["content"]["parts"][0]["text"]
-            parsed = json.loads(content)
-            return float(parsed.get("extracted_amount")), 0.95, content
+
+        def _do_request():
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+
+        data = self.rate_limiter.execute_with_backoff(_do_request, max_retries=3)
+        content = data["candidates"][0]["content"]["parts"][0]["text"]
+        parsed = json.loads(content)
+        return float(parsed.get("extracted_amount")), 0.95, content
 
     def _call_gemini_message_parser(self, msg: Message) -> MessageAmendment:
         """Call Gemini text endpoint to parse message into amendment."""
@@ -493,19 +529,23 @@ class ExtractionLayer:
             headers={"Content-Type": "application/json"},
             method="POST",
         )
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            content = data["candidates"][0]["content"]["parts"][0]["text"]
-            parsed = json.loads(content)
-            return MessageAmendment(
-                message_id=msg.message_id,
-                user_id=msg.user_id,
-                event_id_if_any=msg.related_event_id,
-                amendment_type=parsed.get("amendment_type", "unrelated"),
-                new_value_if_any=parsed.get("new_value_if_any"),
-                is_valid=False,
-                raw_output=content,
-            )
+
+        def _do_request():
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+
+        data = self.rate_limiter.execute_with_backoff(_do_request, max_retries=3)
+        content = data["candidates"][0]["content"]["parts"][0]["text"]
+        parsed = json.loads(content)
+        return MessageAmendment(
+            message_id=msg.message_id,
+            user_id=msg.user_id,
+            event_id_if_any=msg.related_event_id,
+            amendment_type=parsed.get("amendment_type", "unrelated"),
+            new_value_if_any=parsed.get("new_value_if_any"),
+            is_valid=False,
+            raw_output=content,
+        )
 
 
 def apply_extractions_to_events(

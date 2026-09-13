@@ -172,6 +172,19 @@ class DecisionEngine:
                 if not schedule:
                     continue
 
+                # Strict safety check: simulate cumulative installment payments against daily forecast margins
+                # Must never breach minimum_balance_to_keep on any day t in forecast window
+                schedule_parsed = [(datetime.strptime(d_str, "%Y-%m-%d").date(), amt) for d_str, amt in schedule]
+                is_inst_safe = True
+                for t_date in sorted(forecast.daily_margins.keys()):
+                    cum_paid = sum(a for d_date, a in schedule_parsed if d_date <= t_date)
+                    if forecast.daily_margins[t_date] - cum_paid < -1e-4:
+                        is_inst_safe = False
+                        break
+
+                if not is_inst_safe:
+                    continue  # Discard unsafe installment option
+
                 final_date = schedule[-1][0]
                 monthly_amt = opt.payment_amount
                 tot_paid = opt.total_payable_amount or (monthly_amt * opt.number_of_payments)

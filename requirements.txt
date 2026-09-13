@@ -1,0 +1,6 @@
+# Core project runs with standard Python 3.9+ built-in library (0 external dependencies required).
+# Optional packages for additional SDK access or testing:
+
+google-genai>=0.1.0
+pillow>=10.0.0
+pytest>=7.0.0
