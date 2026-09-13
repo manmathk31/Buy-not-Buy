@@ -218,6 +218,13 @@ class ForecastEngine:
                     if sched_evs:
                         chosen_amt = sched_evs[-1].amount
 
+                # Check if recurring stream is discontinued: if (request_date - last_date) exceeds (interval + tolerance),
+                # the expected occurrence date has already passed prior to request_date with no event, so the stream is inactive.
+                days_since_last = (request_date - dates[-1]).days
+                tolerance = 7 if is_monthly else 4
+                if days_since_last > (int_med + tolerance):
+                    continue
+
                 recurring.append({
                     "user_id": uid,
                     "category": cat,
