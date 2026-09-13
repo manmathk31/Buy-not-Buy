@@ -23,26 +23,14 @@ code_dir = Path(__file__).resolve().parent.parent
 if str(code_dir) not in sys.path:
     sys.path.insert(0, str(code_dir))
 
-def _load_env_file():
-    root_dir = Path(__file__).resolve().parent.parent.parent
-    for env_path in [root_dir / ".env", Path(".env")]:
-        if env_path.exists():
-            with open(env_path, "r", encoding="utf-8") as f:
-                for line in f:
-                    line = line.strip()
-                    if line and not line.startswith("#") and "=" in line:
-                        k, v = line.split("=", 1)
-                        k = k.strip()
-                        v = v.strip().strip("'\"")
-                        if k and k not in os.environ:
-                            os.environ[k] = v
+from extraction import ExtractionLayer, apply_extractions_to_events, load_env_and_detect_key
 
-_load_env_file()
+# Print key detection info as the very first lines
+load_env_and_detect_key(verbose=True)
 
 from loaders import load_dataset
 from forecast import ForecastEngine
 from decision import DecisionEngine
-from extraction import ExtractionLayer, apply_extractions_to_events
 from models import Request
 from validator import validate_output_file
 
@@ -56,10 +44,14 @@ def evaluate_predictions(dataset_dir: Path, output_file: Path):
     print(f"Validator PASSED on output.csv ({len(records_250)} rows).")
 
     # 2. Run extraction layer & DecisionEngine on 25 sample requests
+    print("\nRunning scoped extraction layer on sample evaluation dataset...")
     extractor = ExtractionLayer()
-    image_results = {img.image_id: extractor.extract_image_amount(img, dataset_dir) for img in store.images}
+    image_results = {img.image_id: extractor.extract_image_amount(img, dataset_dir, i + 1, len(store.images)) for i, img in enumerate(store.images)}
     message_amendments = [extractor.parse_message(m) for m in store.messages]
     corrected_events = apply_extractions_to_events(store.events, image_results, message_amendments)
+
+    api_report = extractor.get_api_report()
+    print(f"API usage: {api_report['api_calls_total']} calls, {api_report['api_errors_total']} errors.")
 
     events_by_user = {}
     for e in corrected_events:

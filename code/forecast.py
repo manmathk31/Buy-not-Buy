@@ -361,8 +361,9 @@ class ForecastEngine:
                     pass
             recurring_monthly_by_cat[cat] += monthly
 
-        # Gather historical settled debits for PROTECTED categories only (last 180 days)
-        hist_lookback = req_date - timedelta(days=180)
+        # Gather historical settled debits for PROTECTED categories only (last 90 days)
+        # Align historical lookback window (90 days) with the 90-day forecast window
+        hist_lookback = req_date - timedelta(days=90)
         cat_daily_spend: Dict[str, float] = {}
         hist_cat_totals: Dict[str, float] = defaultdict(float)
         hist_cat_first_date: Dict[str, date] = {}
@@ -401,15 +402,13 @@ class ForecastEngine:
             if cat not in hist_cat_last_date or e_date > hist_cat_last_date[cat]:
                 hist_cat_last_date[cat] = e_date
 
-        # Subtract recurring group contribution from each protected category's total
-        # to get the residual (non-recurring) essential spending
+        # Compute daily drag rate using lookback span from first historical event to req_date (min 30 days)
         total_daily_drag = 0.0
         for cat, total in hist_cat_totals.items():
-            if cat not in hist_cat_first_date or cat not in hist_cat_last_date:
+            if cat not in hist_cat_first_date:
                 continue
             first_d = hist_cat_first_date[cat]
-            last_d = hist_cat_last_date[cat]
-            span_days = max(14, (last_d - first_d).days)
+            span_days = max(30, (req_date - first_d).days)
 
             # Subtract the recurring group's estimated contribution over the same span
             recurring_daily = recurring_monthly_by_cat.get(cat, 0.0) / 30.0

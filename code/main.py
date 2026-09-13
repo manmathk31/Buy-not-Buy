@@ -17,27 +17,14 @@ import sys
 from pathlib import Path
 from typing import List, Optional
 
-# Load .env file automatically if present
-def _load_env_file():
-    root_dir = Path(__file__).resolve().parent.parent
-    for env_path in [root_dir / ".env", Path(".env")]:
-        if env_path.exists():
-            with open(env_path, "r", encoding="utf-8") as f:
-                for line in f:
-                    line = line.strip()
-                    if line and not line.startswith("#") and "=" in line:
-                        k, v = line.split("=", 1)
-                        k = k.strip()
-                        v = v.strip().strip("'\"")
-                        if k and k not in os.environ:
-                            os.environ[k] = v
-
-_load_env_file()
-
-# Ensure local imports work whether executed from repo root or code/
 current_dir = Path(__file__).resolve().parent
 if str(current_dir) not in sys.path:
     sys.path.insert(0, str(current_dir))
+
+from extraction import ExtractionLayer, apply_extractions_to_events, load_env_and_detect_key
+
+# Print key detection info as the very first lines
+load_env_and_detect_key(verbose=True)
 
 from models import (
     AffordabilityStatus,
@@ -49,9 +36,6 @@ from models import (
 from loaders import DatasetStore, RequestContext, load_dataset
 from validator import REQUIRED_COLUMNS, validate_output_file
 from forecast import ForecastEngine
-from extraction import ExtractionLayer, apply_extractions_to_events
-
-
 from decision import DecisionEngine
 
 
@@ -108,7 +92,7 @@ def run_pipeline(
     # 1. Scoped extraction layer
     print("\nRunning scoped extraction layer on images and messages...")
     extractor = ExtractionLayer()
-    image_results = {img.image_id: extractor.extract_image_amount(img, dataset_path) for img in store.images}
+    image_results = {img.image_id: extractor.extract_image_amount(img, dataset_path, i + 1, len(store.images)) for i, img in enumerate(store.images)}
     message_amendments = [extractor.parse_message(m) for m in store.messages]
     corrected_events = apply_extractions_to_events(store.events, image_results, message_amendments)
 

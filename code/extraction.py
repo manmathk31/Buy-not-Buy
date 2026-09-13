@@ -58,22 +58,47 @@ class RateLimiter:
                 else:
                     raise
 
-# Load .env file automatically if present
-def _load_env_file():
+def load_env_and_detect_key(verbose: bool = False) -> Tuple[bool, str, int, str]:
+    """Load .env file if present and detect GEMINI_API_KEY status."""
+    key_source = None
+    if os.environ.get("GEMINI_API_KEY"):
+        key_source = "OS environment variable"
+
     root_dir = Path(__file__).resolve().parent.parent
     for env_path in [root_dir / ".env", Path(".env")]:
         if env_path.exists():
-            with open(env_path, "r", encoding="utf-8") as f:
-                for line in f:
-                    line = line.strip()
-                    if line and not line.startswith("#") and "=" in line:
-                        k, v = line.split("=", 1)
-                        k = k.strip()
-                        v = v.strip().strip("'\"")
-                        if k and k not in os.environ:
-                            os.environ[k] = v
+            try:
+                with open(env_path, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith("#") and "=" in line:
+                            k, v = line.split("=", 1)
+                            k = k.strip()
+                            v = v.strip().strip("'\"")
+                            if k and k not in os.environ:
+                                os.environ[k] = v
+                                if k == "GEMINI_API_KEY" and not key_source:
+                                    key_source = ".env file"
+            except Exception:
+                pass
 
-_load_env_file()
+    key = os.environ.get("GEMINI_API_KEY")
+    if key:
+        prefix = key[:4]
+        length = len(key)
+        source = key_source or "OS environment variable"
+        if verbose:
+            print(f"GEMINI_API_KEY detected: YES")
+            print(f"Key starts with: {prefix}... ({length} chars)")
+            print(f"Key source: {source}")
+        return True, prefix, length, source
+    else:
+        if verbose:
+            print("GEMINI_API_KEY detected: NO (using conservative fallback for all extraction)")
+        return False, "", 0, ""
+
+load_env_and_detect_key(verbose=False)
+
 
 from models import FinancialEvent, Message, ImageRecord
 
@@ -217,7 +242,13 @@ class ExtractionLayer:
         amendment.is_valid = True
         return True
 
-    def extract_image_amount(self, image_rec: ImageRecord, dataset_dir: Path) -> ImageExtractionResult:
+    def extract_image_amount(
+        self,
+        image_rec: ImageRecord,
+        dataset_dir: Path,
+        img_index: int = 1,
+        total_images: int = 16,
+    ) -> ImageExtractionResult:
         """Extract amount from linked image with strict positive float validation.
         
         Requires GEMINI_API_KEY in environment for real extraction.
@@ -226,6 +257,7 @@ class ExtractionLayer:
         image_path = dataset_dir / image_rec.relative_file_path
 
         if self.api_key:
+            print(f"Image {img_index}/{total_images}: calling API...", end=" ", flush=True)
             try:
                 self.api_calls_count += 1
                 extracted_amt, conf, raw = self._call_gemini_vision(image_path)
@@ -237,11 +269,27 @@ class ExtractionLayer:
                     raw_model_output=raw,
                 )
                 self.validate_image_extraction(res)
+                if res.is_valid:
+                    print(f"SUCCESS (Amount: {extracted_amt})")
+                else:
+                    print(f"FAILED - Invalid amount extracted: {extracted_amt}")
                 return res
+            except urllib.error.HTTPError as e:
+                self.api_errors_count += 1
+                try:
+                    err_body = e.read().decode("utf-8", errors="replace")
+                except Exception:
+                    err_body = str(e)
+                err_msg = f"HTTP {e.code}: {err_body.strip()}"
+                print(f"FAILED - {err_msg}")
+                raw_err = f"API Error: {err_msg}"
             except Exception as e:
                 self.api_errors_count += 1
-                raw_err = f"API Error: {e}"
+                err_msg = str(e)
+                print(f"FAILED - {err_msg}")
+                raw_err = f"API Error: {err_msg}"
         else:
+            print(f"Image {img_index}/{total_images}: NO API KEY -> using conservative fallback")
             raw_err = "No GEMINI_API_KEY set; image extraction requires API access"
 
         # No API key or API failed: return invalid result so conservative fallback rule applies
@@ -510,7 +558,16 @@ class ExtractionLayer:
         data = self.rate_limiter.execute_with_backoff(_do_request, max_retries=3)
         content = data["candidates"][0]["content"]["parts"][0]["text"]
         parsed = json.loads(content)
-        return float(parsed.get("extracted_amount")), 0.95, content
+        raw_amt = parsed.get("extracted_amount")
+        if raw_amt is not None:
+            try:
+                if isinstance(raw_amt, str):
+                    raw_amt = raw_amt.replace(",", "").strip()
+                amt_val = float(raw_amt)
+                return amt_val, 0.95, content
+            except (ValueError, TypeError):
+                pass
+        return None, 0.0, content
 
     def _call_gemini_message_parser(self, msg: Message) -> MessageAmendment:
         """Call Gemini text endpoint to parse message into amendment."""
